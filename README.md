@@ -1,0 +1,1 @@
+Simple app to ping host and save result in statsd
