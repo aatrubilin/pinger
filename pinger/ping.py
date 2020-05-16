@@ -14,7 +14,7 @@ else:
     __encoding = os.environ.get("PING_ENCODING", "utf8")
     __param = "-c"
     __res_line = 1
-    time_regexp = re.compile(r"time=([\d]+) ms")
+    time_regexp = re.compile(r"time=([\d.]+) ms")  # 64 bytes from 173.194.222.113: seq=0 ttl=38 time=66.077 ms
 
 
 class PingResult(object):
@@ -23,16 +23,16 @@ class PingResult(object):
         self.out = out
         self.error = error
 
-        self.time_ms = -1
+        self.time_ms = -1.0
 
         self._parse_out()
 
     def _parse_out(self):
         if not self.error:
             try:
-                self.time_ms = int(time_regexp.search(self.out).group(1))
+                self.time_ms = float(time_regexp.search(self.out).group(1))
             except:
-                self.time_ms = -2
+                self.time_ms = -2.0
                 logger.exception("Unhandled exception when parsing out: %s", self.out)
 
     @property

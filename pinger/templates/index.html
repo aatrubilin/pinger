@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="stylesheet" type="text/css" href="static/css/flatpickr.min.css">
+  <script src="static/js/flatpickr.js"></script>
+  <script src="static/js/highcharts.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+      /* overflow: hidden; */
+    }
+    .date-picker {
+      position: absolute;
+      left: 70px;
+      top: 25px;
+      z-index: 10;
+    }
+    .datetime {
+      border: 1px solid #cccccc;
+      padding: 10px;
+      border-radius: 4px;
+      width: {{'160' if dt|length > 10 else '90'}}px;
+      text-align: center;
+      background-color: #f7f7f7;
+    }
+    .chart {
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="date-picker">
+    <form id="datePickerForm">
+      <input type="text" name="dt" id="dt" class="datetime" value="{{dt}}">
+    </form>
+  </div>
+
+  <div id="chart" class="chart"></div>
+
+  <script>
+    var dt = document.getElementById("dt");
+    var datePickerForm = document.getElementById("datePickerForm");
+
+    var curDate = dt.value;
+
+    var dtPickerConfig = {
+      mode: "range",
+      minDate: "{{min_date}}",
+      maxDate: "today",
+      locale: {rangeSeparator: ' - '},
+      onClose: function () {
+        if (curDate !== dt.value) {
+          datePickerForm.submit();
+        }
+      },
+    };
+    flatpickr(".datetime", dtPickerConfig);
+
+    var chart;
+
+    function requestData() {
+      var xhr = new XMLHttpRequest();
+      var url = "getData?dt=" + dt.value;
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            for (var i = 0; i < data.length; i++) {
+              console.log({addSeries: data[i]});
+              chart.addSeries(data[i]);
+            }
+          }
+      };
+      xhr.send(null)
+    }
+
+    var chartConfig = {
+      chart: {
+          zoomType: 'x',
+          events: {load: requestData}
+      },
+      title: {text: ''},
+      xAxis: {type: 'datetime'},
+      yAxis: {
+          title: {text: 'Ping, ms'},
+          min: -10,
+          startOnTick: false,
+      },
+      legend: {enabled: false},
+      plotOptions: {
+          area: {
+              fillColor: {
+                  linearGradient: {x1: 0, y1: 0, x2: 0, y2: 1},
+                  stops: [
+                      [0, Highcharts.getOptions().colors[0]],
+                      [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                  ]
+              },
+              marker: {radius: 2},
+              lineWidth: 1,
+              states: {
+                  hover: {lineWidth: 1}
+              },
+              threshold: null
+          }
+      },
+      time: {useUTC: false},
+      series: []
+    };
+
+    chart = Highcharts.chart('chart', chartConfig);
+  </script>
+</body>
+</html>
