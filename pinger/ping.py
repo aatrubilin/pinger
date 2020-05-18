@@ -14,7 +14,9 @@ else:
     __encoding = os.environ.get("PING_ENCODING", "utf8")
     __param = "-c"
     __res_line = 1
-    time_regexp = re.compile(r"time=([\d.]+) ms")  # 64 bytes from 173.194.222.113: seq=0 ttl=38 time=66.077 ms
+    time_regexp = re.compile(
+        r"time=([\d.]+) ms"
+    )  # 64 bytes from 173.194.222.113: seq=0 ttl=38 time=66.077 ms
 
 
 class PingResult(object):
@@ -26,6 +28,8 @@ class PingResult(object):
         self.time_ms = -1.0
 
         self._parse_out()
+
+        logger.debug("Check ping res %s", self)
 
     def _parse_out(self):
         if not self.error:

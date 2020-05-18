@@ -43,6 +43,7 @@ def init_db(engine=None):
         engine = sa.create_engine("sqlite://")
 
     from . import schema
+
     DB = namedtuple("DB", ["session"] + schema.__all__)
 
     Session.configure(bind=engine)

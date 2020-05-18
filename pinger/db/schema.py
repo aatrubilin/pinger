@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Ping(Base):
-    __tablename__ = 'pings'
+    __tablename__ = "pings"
 
     id = sa.Column(sa.Integer, primary_key=True)
     host = sa.Column(sa.String, nullable=False)

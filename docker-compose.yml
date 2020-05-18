@@ -5,6 +5,14 @@ services:
     build: .
     command: python run.py
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - FLASK_ENV=production
+      - PING_HOSTS=google.com
+      - PING_DELAY_SEC=60
+      - PING_FAIL_DELAY_SEC=5
+      - DB_URL=postgresql://pinger:pinger@db/pinger
     ports:
       - 80:5000
     networks:
@@ -13,11 +21,13 @@ services:
       - db
   db:
     image: postgres:10-alpine
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=12345
       - POSTGRES_DB=pinger
     networks:
       - pinger-net

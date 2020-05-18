@@ -19,27 +19,47 @@
     }
     .date-picker {
       position: absolute;
-      left: 70px;
-      top: 25px;
+      right: 19px;
+      top: 7px;
       z-index: 10;
     }
     .datetime {
       border: 1px solid #cccccc;
-      padding: 10px;
+      padding: 7px;
       border-radius: 4px;
-      width: {{'160' if dt|length > 10 else '90'}}px;
       text-align: center;
       background-color: #f7f7f7;
+    }
+    .refresh-btn {
+      border: 1px solid #cccccc;
+      padding: 7px;
+      border-radius: 4px;
+      text-align: center;
+      background-color: #f7f7f7;
+      cursor: pointer;
     }
     .chart {
       height: 100%;
     }
+    .repo {
+      position: absolute;
+      z-index: 2;
+      left: 5px;
+      top: 5px;
+    }
   </style>
 </head>
 <body>
+  <div class="repo">
+    <a href="https://github.com/aatrubilin/pinger" target="_blank">
+      <img alt="GitHub stars" src="https://img.shields.io/github/stars/aatrubilin/pinger?style=social">
+    </a>
+  </div>
+
   <div class="date-picker">
     <form id="datePickerForm">
-      <input type="text" name="dt" id="dt" class="datetime" value="{{dt}}">
+      <input type="text" name="dt" id="dt" class="datetime">
+      <button class="refresh-btn">⟳</button>
     </form>
   </div>
 
@@ -47,37 +67,42 @@
 
   <script>
     var dt = document.getElementById("dt");
-    var datePickerForm = document.getElementById("datePickerForm");
 
-    var curDate = dt.value;
+    function dtSetWidth(selectedDates, dateStr,) {
+      dt.style.width = dateStr.length * 8 + "px";
+    }
 
     var dtPickerConfig = {
       mode: "range",
       minDate: "{{min_date}}",
       maxDate: "today",
+      defaultDate: "{{dt}}",
       locale: {rangeSeparator: ' - '},
-      onClose: function () {
-        if (curDate !== dt.value) {
-          datePickerForm.submit();
-        }
-      },
+      onChange: dtSetWidth,
+      onReady: dtSetWidth
     };
     flatpickr(".datetime", dtPickerConfig);
 
     var chart;
 
     function requestData() {
+      chart.showLoading();
       var xhr = new XMLHttpRequest();
       var url = "getData?dt=" + dt.value;
-      xhr.open("POST", url, true);
+      xhr.open("GET", url, true);
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            var data = JSON.parse(xhr.responseText);
-            for (var i = 0; i < data.length; i++) {
-              console.log({addSeries: data[i]});
-              chart.addSeries(data[i]);
+            var response = JSON.parse(xhr.responseText);
+            for (var i = 0; i < response.data.length; i++) {
+              chart.addSeries(response.data[i]);
             }
+            if (response.no_ping) {
+              chart.setTitle({text: "No internet for " + response.no_ping + " time long"});
+            } else {
+              chart.setTitle({text: "Ping ok"});
+            }
+            chart.hideLoading();
           }
       };
       xhr.send(null)
@@ -85,39 +110,40 @@
 
     var chartConfig = {
       chart: {
-          zoomType: 'x',
-          events: {load: requestData}
+        zoomType: 'x'
       },
       title: {text: ''},
       xAxis: {type: 'datetime'},
       yAxis: {
-          title: {text: 'Ping, ms'},
-          min: -10,
-          startOnTick: false,
+        title: {text: 'Ping, ms'},
+        min: -10,
+        startOnTick: false,
       },
-      legend: {enabled: false},
+      legend: {enabled: true},
       plotOptions: {
-          area: {
-              fillColor: {
-                  linearGradient: {x1: 0, y1: 0, x2: 0, y2: 1},
-                  stops: [
-                      [0, Highcharts.getOptions().colors[0]],
-                      [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                  ]
-              },
-              marker: {radius: 2},
-              lineWidth: 1,
-              states: {
-                  hover: {lineWidth: 1}
-              },
-              threshold: null
-          }
+        line: {
+          fillColor: {
+              linearGradient: {x1: 0, y1: 0, x2: 0, y2: 1},
+              stops: [
+                  [0, Highcharts.getOptions().colors[0]],
+                  [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+              ]
+          },
+          marker: {radius: 2},
+          lineWidth: 1,
+          states: {
+              hover: {lineWidth: 1}
+          },
+          threshold: null,
+          fillOpacity: 0.1
+        },
       },
       time: {useUTC: false},
       series: []
     };
 
     chart = Highcharts.chart('chart', chartConfig);
+    requestData();
   </script>
 </body>
 </html>
