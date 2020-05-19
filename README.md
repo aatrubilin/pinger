@@ -6,6 +6,8 @@
 
 This is a simple Python Flask application that pings `google.com` (by default) and show result in web graphs. 
 
+:signal_strength: [Demo](https://aatrubilin.github.io/pinger/assets/demo.html)
+
 ## Note
 
 - App is designed to use Postgres and run on Raspberry PI, 
@@ -126,14 +128,6 @@ Boom! :fire: It's done! Go to `http://{RPI IP}`
 
 Tests not ready yet...
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 ## Development
 
 Make sure to have the following on your host:
@@ -156,7 +150,7 @@ cd pinger
 Create a virtualenv:
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 ```
 
 Activate the virtualenv you have just created:
@@ -168,7 +162,7 @@ source venv/bin/activate
 Install development requirements:
 
 ```bash
-pip install -r requirements-dev.txt
+pip3 install -r requirements-dev.txt
 ```
 
 Install pre-commit hooks
@@ -197,6 +191,12 @@ export PING_HOSTS=google.com
 export PING_DELAY_SEC=60
 export PING_FAIL_DELAY_SEC=5
 export DB_URL=postgresql://pinger:pinger@db/pinger
+```
+
+Run the app
+
+```bash
+python pinger/run.py
 ```
 
 ## Built With
