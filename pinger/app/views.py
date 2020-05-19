@@ -27,7 +27,7 @@ def _parse_dt_range(dt):
                 datetime.date.fromisoformat(dt[0]), datetime.time()
             )
             query_range = (dt_start, dt_start + dt_day)
-            dt_picker_value = dt_start.date().isoformat()
+            dt_picker_value = (dt_start.date().isoformat(), dt_start.date().isoformat())
         else:
             dt_start = datetime.datetime.combine(
                 datetime.date.fromisoformat(dt[0]), datetime.time()
@@ -39,13 +39,11 @@ def _parse_dt_range(dt):
                 + dt_day
             )
             query_range = (dt_start, dt_end)
-            dt_picker_value = (
-                f"{dt_start.date().isoformat()}{dt_sep}{dt_end.date().isoformat()}"
-            )
+            dt_picker_value = (dt_start.date().isoformat(), dt_end.date().isoformat())
     else:
         dt = datetime.datetime.combine(datetime.datetime.now().date(), datetime.time())
         query_range = (dt, dt + dt_day)
-        dt_picker_value = dt.date().isoformat()
+        dt_picker_value = (dt.date().isoformat(), dt.date().isoformat())
 
     query_range_ts = _dt_to_ts(query_range[0]), _dt_to_ts(query_range[1])
     logger.debug(
@@ -70,8 +68,9 @@ def index():
         min_date = datetime.datetime.now().date()
 
     dt_picker_value, _ = _parse_dt_range(request.args.get("dt"))
+    dt_1, dt_2 = dt_picker_value
     return render_template(
-        "index.html", dt=dt_picker_value, min_date=min_date.isoformat()
+        "index.html", dt_1=dt_1, dt_2=dt_2, min_date=min_date.isoformat()
     )
 
 
