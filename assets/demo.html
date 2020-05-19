@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinger</title>
+  <link rel="icon" type="image/png" href="../pinger/static/img/favicon.png"/>
+  <link rel="stylesheet" type="text/css" href="../pinger/static/css/flatpickr.min.css">
+  <script src="../pinger/static/js/flatpickr.js"></script>
+  <script src="../pinger/static/js/highcharts.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+      /* overflow: hidden; */
+    }
+    .date-picker {
+      position: absolute;
+      right: 19px;
+      top: 7px;
+      z-index: 10;
+    }
+    .datetime {
+      border: 1px solid #cccccc;
+      padding: 7px;
+      border-radius: 4px;
+      text-align: center;
+      background-color: #f7f7f7;
+    }
+    .refresh-btn {
+      border: 1px solid #cccccc;
+      padding: 7px;
+      border-radius: 4px;
+      text-align: center;
+      background-color: #f7f7f7;
+      cursor: pointer;
+    }
+    .chart {
+      height: 100%;
+    }
+    .repo {
+      position: absolute;
+      z-index: 2;
+      left: 5px;
+      top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="repo">
+    <a href="https://github.com/aatrubilin/pinger" target="_blank">
+      <img alt="GitHub stars" src="https://img.shields.io/github/stars/aatrubilin/pinger?style=social">
+    </a>
+  </div>
+
+  <div class="date-picker">
+    <form id="datePickerForm">
+      <input type="text" name="dt" id="dt" class="datetime">
+      <button class="refresh-btn">⟳</button>
+    </form>
+  </div>
+
+  <div id="chart" class="chart"></div>
+
+  <script>
+    var dt = document.getElementById("dt");
+
+    function dtSetWidth(selectedDates, dateStr,) {
+      dt.style.width = dateStr.length * 8 + "px";
+    }
+
+    var dtPickerConfig = {
+      mode: "range",
+      minDate: "today",
+      maxDate: "today",
+      defaultDate: "today",
+      locale: {rangeSeparator: ' - '},
+      onChange: dtSetWidth,
+      onReady: dtSetWidth
+    };
+    flatpickr(".datetime", dtPickerConfig);
+
+    var chart;
+
+    function randomPing() {
+		return Math.ceil(40 + Math.random() * 10.0);
+	}
+
+	function getRandomInt(max) {
+      return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    function requestData() {
+        var now = new Date();
+        var startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        var data = [];
+        var noInternetHour = getRandomInt(now.getHours());
+        var ping;
+        while (startOfDay.getTime() < now.getTime()) {
+            if (startOfDay.getHours() === noInternetHour) {
+                ping = -1;
+            } else {
+                ping = randomPing();
+            }
+            data.push([startOfDay.getTime(), ping]);
+            startOfDay = new Date(startOfDay.getTime() + 60000);
+        }
+
+        chart.addSeries({
+            name: "google.com",
+            type:"line",
+            data: data,
+        });
+        chart.setTitle({text: "No internet for 1:00:00 time long"});
+        chart.hideLoading();
+    }
+
+
+    var chartConfig = {
+      chart: {
+        zoomType: 'x'
+      },
+      title: {text: ''},
+      xAxis: {type: 'datetime'},
+      yAxis: {
+        title: {text: 'Ping, ms'},
+        min: -10,
+        startOnTick: false,
+      },
+      legend: {enabled: true},
+      plotOptions: {
+        line: {
+          fillColor: {
+              linearGradient: {x1: 0, y1: 0, x2: 0, y2: 1},
+              stops: [
+                  [0, Highcharts.getOptions().colors[0]],
+                  [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+              ]
+          },
+          marker: {radius: 2},
+          lineWidth: 1,
+          states: {
+              hover: {lineWidth: 1}
+          },
+          threshold: null,
+          fillOpacity: 0.1
+        },
+      },
+      time: {useUTC: false},
+      series: []
+    };
+
+    chart = Highcharts.chart('chart', chartConfig);
+
+    chart.showLoading();
+    setTimeout(requestData, 1000);
+  </script>
+</body>
+</html>
