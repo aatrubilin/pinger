@@ -26,8 +26,8 @@ services:
       - postgres_data:/var/lib/postgresql/data/
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=12345
+      - POSTGRES_USER=pinger
+      - POSTGRES_PASSWORD=pinger
       - POSTGRES_DB=pinger
     networks:
       - pinger-net

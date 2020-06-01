@@ -55,7 +55,7 @@ country=RU
 
 network={
     ssid="YOUR_WIFI_SID"
-    psk="YOUR_FIFI_PASSWORD"
+    psk="YOUR_WIFI_PASSWORD"
     key_mgmt=WPA-PSK
 }
 ```
@@ -63,7 +63,7 @@ network={
 #### Setup Raspbian, optionally
 
 - Connect to RPI via ssh, default login:pass - `pi:raspberry`
-- Update packages `sudo apt-get update & sudo apt-get upgrade`
+- Update packages `sudo apt-get update && sudo apt-get upgrade`
 - Configure your Raspberry Pi `sudo raspi-config`
 
 ### Prerequisites
